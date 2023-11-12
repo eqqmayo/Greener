@@ -20,6 +20,7 @@ final class ViewController: UIViewController {
         return label
     }()
     
+    
     // 이름 텍스트필드 뷰
     private lazy var nameTextFieldView: UIView = {
         let view = UIView()
@@ -27,38 +28,28 @@ final class ViewController: UIViewController {
         view.layer.borderWidth = 1
         view.layer.borderColor = #colorLiteral(red: 0.1960784346, green: 0.3411764801, blue: 0.1019607857, alpha: 1)
         view.frame.size.height = 40
-        view.layer.cornerRadius = 6
+        view.layer.cornerRadius = 5
         view.layer.masksToBounds = true
         view.addSubview(nameTextField)
-//        view.addSubview(nameInfoLabel)
         return view
     }()
     
-    // "이름 또는 닉네임 입력" 안내문구
-//    private let nameInfoLabel: UILabel = {
-//        let label = UILabel()
-//        label.text = "이름 또는 닉네임 입력"
-//        label.textAlignment = .center
-//        label.font = UIFont.systemFont(ofSize: 18)
-//        label.textColor = #colorLiteral(red: 0.3333333433, green: 0.3333333433, blue: 0.3333333433, alpha: 1)
-//        return label
-//    }()
     
     // 이름 입력 필드
     private lazy var nameTextField: UITextField = {
         var tf = UITextField()
         tf.frame.size.height = 40
         tf.backgroundColor = .clear
-        tf.placeholder = "이름 또는 이메일 입력"
+        tf.placeholder = "이름 또는 닉네임 입력"
         tf.textColor = .black
         tf.tintColor = .black
         tf.textAlignment = .center
         tf.autocapitalizationType = .none
         tf.clearButtonMode = .always
         tf.keyboardType = .default
-        //        tf.addTarget(self, action: #selector(textFieldEditingChanged(_:)), for: .editingChanged)
         return tf
     }()
+    
     
     private lazy var startButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -68,10 +59,11 @@ final class ViewController: UIViewController {
         button.setTitle("시작하기", for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
         button.setTitleColor(UIColor.white, for: .normal)
-        button.isEnabled = false
-        //        button.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
+        button.isEnabled = true
+        button.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
         return button
     }()
+    
     
     // 메인레이블, 이름 텍스트필드 뷰, 시작하기 버튼을 스택뷰에 배치
     private lazy var stackView: UIStackView = {
@@ -83,15 +75,17 @@ final class ViewController: UIViewController {
         return stview
     }()
     
+    
     private let textViewHeight: CGFloat = 40
     
+    var name: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
         setupAutoLayout()
-        
     }
+    
     
     private func configure() {
         view.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
@@ -99,11 +93,11 @@ final class ViewController: UIViewController {
         view.addSubview(stackView)
     }
     
+    
     private func setupAutoLayout() {
         
         mainLabel.translatesAutoresizingMaskIntoConstraints = false
         nameTextFieldView.translatesAutoresizingMaskIntoConstraints = false
-//        nameInfoLabel.translatesAutoresizingMaskIntoConstraints = false
         nameTextField.translatesAutoresizingMaskIntoConstraints = false
         startButton.translatesAutoresizingMaskIntoConstraints = false
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -111,11 +105,7 @@ final class ViewController: UIViewController {
         NSLayoutConstraint.activate([
             
             mainLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 280),
-//            nameInfoLabel.leadingAnchor.constraint(equalTo: nameTextFieldView.leadingAnchor, constant: 8),
-//            nameInfoLabel.trailingAnchor.constraint(equalTo: nameTextFieldView.trailingAnchor, constant: -8),
-//            nameInfoLabel.centerYAnchor.constraint(equalTo: nameTextFieldView.centerYAnchor),
         
-            
             
             nameTextField.centerYAnchor.constraint(equalTo: nameTextFieldView.centerYAnchor),
             nameTextField.leadingAnchor.constraint(equalTo: nameTextFieldView.leadingAnchor, constant: 8),
@@ -123,12 +113,46 @@ final class ViewController: UIViewController {
             
             
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
             stackView.heightAnchor.constraint(equalToConstant: textViewHeight*3 + 36)
+        
         ])
         
     }
+    
+    
+    @objc func startButtonTapped() {
+                
+        if nameTextField.text == "" {
+            nameTextField.placeholder = "한 글자 이상 입력해 주세요"
+        } else {
+            
+            name = nameTextField.text!
+
+            let alert = UIAlertController(title: "시작하기", message: "\(nameTextField.text!)의 정원으로 갈까요?", preferredStyle: .alert)
+            
+            let confirm = UIAlertAction(title: "네", style: .default) {_ in
+                let secondVC = SecondViewController()
+                secondVC.modalPresentationStyle = .fullScreen
+                secondVC.name = self.name
+                self.present(secondVC, animated: true, completion: nil)
+            }
+            
+            let cancel = UIAlertAction(title: "아니요", style: .cancel)
+            
+            
+            alert.addAction(confirm)
+            alert.addAction(cancel)
+            
+            present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
+    }
+    
 }
     
